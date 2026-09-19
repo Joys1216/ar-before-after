@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>攤位改造 AR</title>
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #startButton {
+      position: fixed;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      z-index: 9999;
+
+      padding: 14px 24px;
+      border: none;
+      border-radius: 30px;
+
+      font-size: 18px;
+      font-weight: bold;
+
+      background: white;
+      color: black;
+
+      box-shadow: 0 3px 12px rgba(0,0,0,.3);
+    }
+  </style>
+</head>
+
+<body>
+
+<button id="startButton">
+  點一下啟動 AR
+</button>
+
+<a-scene
+  mindar-image="imageTargetSrc: ./targets.mind;
+                autoStart: true;
+                uiScanning: yes;"
+  color-space="sRGB"
+  renderer="colorManagement: true;
+            physicallyCorrectLights: true;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
+
+  <a-assets>
+    <video
+      id="arVideo"
+      src="./before-after.mp4"
+      preload="auto"
+      loop
+      muted
+      playsinline
+      webkit-playsinline>
+    </video>
+  </a-assets>
+
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false">
+  </a-camera>
+
+  <a-entity
+    id="target"
+    mindar-image-target="targetIndex: 0">
+
+    <a-video
+      src="#arVideo"
+      position="0 0 0.01"
+      width="1"
+      height="0.5625">
+    </a-video>
+
+  </a-entity>
+
+</a-scene>
+
+<script>
+
+const video = document.querySelector("#arVideo");
+const target = document.querySelector("#target");
+const button = document.querySelector("#startButton");
+
+button.addEventListener("click", async () => {
+
+  try {
+    await video.play();
+    video.pause();
+    video.currentTime = 0;
+  } catch (e) {}
+
+  button.style.display = "none";
+
+});
+
+target.addEventListener("targetFound", () => {
+
+  video.currentTime = 0;
+  video.play();
+
+});
+
+target.addEventListener("targetLost", () => {
+
+  video.pause();
+  video.currentTime = 0;
+
+});
+
+</script>
+
+</body>
+</html>
